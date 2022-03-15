@@ -1,0 +1,32 @@
+FROM ubuntu:latest
+
+#Setup
+RUN apt-get update
+RUN apt-get -y install software-properties-common
+RUN add-apt-repository -y ppa:ethereum/ethereum
+RUN apt-get update
+RUN apt-get -y install ethereum inetutils-ping telnet net-tools
+
+WORKDIR /
+
+#Copy initial files
+COPY ./bootnode.key .
+
+
+
+# Cwd to data workdir
+WORKDIR /eth-relay
+
+
+
+
+
+
+
+# Run eth testnet bootstrapping node
+CMD [ \
+    "bootnode", \
+    "--nodekey=/bootnode.key", \
+    "--nat=extip:10.5.1.4", \
+    "--v5" \
+]

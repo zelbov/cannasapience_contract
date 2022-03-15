@@ -1,0 +1,45 @@
+FROM ubuntu:latest
+
+#Setup
+RUN apt-get update
+RUN apt-get -y install software-properties-common
+RUN add-apt-repository -y ppa:ethereum/ethereum
+RUN apt-get update
+RUN apt-get -y install ethereum inetutils-ping telnet net-tools
+
+WORKDIR /
+
+#Copy initial files
+COPY ./genesis.json .
+COPY ./testnet.toml .
+COPY ./bootnode.key .
+
+# Cwd to data workdir
+WORKDIR /eth
+
+#Init clean node with genesis block & pre-generated DAG
+RUN geth --config=/testnet.toml --datadir=.ethereum init /genesis.json
+
+COPY ./wallet.keyfile .
+RUN geth --config=/testnet.toml --datadir=.ethereum account import ./wallet.keyfile --password ./wallet.keyfile
+
+#Run eth testnet blockchain node
+CMD [ "geth", \
+    "--config=/testnet.toml", \
+    "--identity=testnet", \
+    "--http", \
+    "--allow-insecure-unlock", \
+    "--http.api=personal,eth,net,web3", \
+    "--http.corsdomain='*'", \
+    "--maxpeers=50", \
+    "--light.maxpeers=25", \
+    "--datadir=.ethereum", \
+    "--bootnodes=enode://890b6b5367ef6072455fedbd7a24ebac239d442b18c5ab9d26f58a349dad35ee5783a0dd543e4f454fed22db9772efe28a3ed6f21e75674ef6203e47803da682@10.5.1.4:0?discport=30301", \
+    "--nat=extip:10.5.1.2", \
+    "--light.serve=90", \
+    "--unlock=0x74b8E695F1Fc8e5098E2E19361D1912c0aC86cA5", \
+    "--password=wallet.keyfile", \
+    "--miner.etherbase=0x74b8E695F1Fc8e5098E2E19361D1912c0aC86cA5", \
+    "--miner.threads=1", \
+    "--mine" \
+]
