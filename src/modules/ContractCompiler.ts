@@ -16,7 +16,6 @@ export const compileSolidityContract = (contractPath: string) => {
     
     const basename = path.basename(contractPath)
     const dirname = path.dirname(contractPath)
-    console.log({ dirname })
     const input = {
         language: 'Solidity',
         sources: {
