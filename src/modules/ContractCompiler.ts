@@ -46,7 +46,6 @@ export const compileSolidityContract = (contractPath: string) => {
         {
             import: (filePath: string) => {
 
-                console.log('import path:', filePath)
                 return {
                     contents: fs.readFileSync(filePath).toString()
                 }
