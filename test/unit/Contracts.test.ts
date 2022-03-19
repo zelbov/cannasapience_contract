@@ -29,7 +29,9 @@ describe('Contracts unit tests', () => {
 
     describe('Contract compilation', () => {
 
-        it('Compile contract: should produce binary & metadata tree', () => {
+        it('Compile contract: should produce binary & metadata tree', function() {
+
+            this.timeout(0)
 
             const compiled = compileSolidityContract(
                 path.join(
