@@ -9,6 +9,18 @@ networks:
 
 services:
 
+  contract-rpc-cors-proxy:
+    build: 
+      context: ./images/rpc-cors-proxy
+    container_name: "contract-rpc-cors-proxy"
+    environment:
+      - PROXY_TARGET_HOST=10.5.1.3
+      - PROXY_TARGET_PORT=8545
+      - NGINX_PORT=80
+    command: /bin/sh -c "envsubst '$${NGINX_PORT},$${PROXY_TARGET_HOST},$${PROXY_TARGET_PORT}' < /etc/nginx/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'" 
+    networks:
+      contract-private:
+        ipv4_address: 10.5.1.10
   contract-testnet:
     build: 
       context: ./images/eth-testnet
