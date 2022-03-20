@@ -1,5 +1,3 @@
-require('dotenv').config()
-
 import Web3 from 'web3'
 import { SignedTransaction } from 'web3-core/types'
 import { DEFAULT_ETH_TX_GAS } from '../constants/EthMainnet';
@@ -138,11 +136,12 @@ export class EthRPC {
 
         contract: CompiledEthContractObject,
         accountPrivateKey: string,
-        accountAddress: string
+        accountAddress: string,
+        params: string[] = []
 
     ) {
        
-        const { signed } = await this.prepareSmartContractDeployTransaction(contract, accountPrivateKey, accountAddress)
+        const { signed } = await this.prepareSmartContractDeployTransaction(contract, accountPrivateKey, accountAddress, params)
 
         const createReceipt = await this._connection.eth.sendSignedTransaction(signed.rawTransaction!);
 

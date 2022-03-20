@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { readFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import 'mocha/mocha'
 import path, { join } from 'path'
 import { compileSolidityContract } from '../../src/modules/ContractCompiler'
@@ -49,6 +49,16 @@ describe('Contracts unit tests', () => {
             console.log('Gas estimates:', single.evm.gasEstimates)
     
             contract = single
+
+            const tmpdir = join(process.cwd(), 'tmp')
+
+            if(!existsSync(tmpdir))
+                mkdirSync(tmpdir)
+
+            writeFileSync(
+                join(tmpdir, 'test_contract.abi.json'),
+                JSON.stringify(contract.abi, null, 2)
+            )
             
         })
 

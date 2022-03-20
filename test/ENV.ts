@@ -3,7 +3,7 @@ import { config } from 'dotenv'
 process.env.NODE_ENV = 'test';
 process.env.DISABLE_API_LOGGING = 'true'
 
-config()
+config({ path: '.env.sample' })
 
 console.log('Test initiated at', new Date().toLocaleString());
 

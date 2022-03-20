@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { readFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import 'mocha/mocha'
 import { join } from 'path'
 import { compileSolidityContract } from '../../src/modules/ContractCompiler'
@@ -36,6 +36,16 @@ describe('ERC20 dummy contract unit testing', () => {
         const rcpt = await rpc.deployContract(contract, root.privateKey, root.address)
 
         contractAddress = rcpt.contractAddress!
+
+        const tmpdir = join(process.cwd(), 'tmp')
+
+        if(!existsSync(tmpdir))
+            mkdirSync(tmpdir)
+
+        writeFileSync(
+            join(tmpdir, 'test_erc20.abi.json'),
+            JSON.stringify(contract.abi, null, 2)
+        )
 
     })
 
