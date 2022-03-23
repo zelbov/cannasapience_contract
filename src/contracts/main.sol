@@ -2,15 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-// @title Test ERC20 Contract
-contract NFTContract is ERC721 {
+import "./DynamicallyMintable.sol";
 
-    constructor() ERC721("Test", "TST") {
+contract Main is NFT_Mintable, Ownable {
 
-        _mint(msg.sender, 1000000);
-
-    }
+    constructor() NFT_Mintable() {}
 
 }

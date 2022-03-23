@@ -20,7 +20,7 @@ const rpc = new EthRPC()
     const compiled = compileSolidityContract(
             join(process.cwd(), 'src', 'contracts', 'main.sol')
         ).contracts['main.sol'],
-        contractName = Object.keys(compiled)[0],
+        contractName = Object.keys(compiled).reverse()[0], // consider last contract is an entrypoint
         contract = compiled[contractName]
 
     console.log('Contract name:', contractName)
