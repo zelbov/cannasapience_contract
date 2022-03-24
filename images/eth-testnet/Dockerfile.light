@@ -21,6 +21,8 @@ WORKDIR /eth-light
 RUN geth --config=/testnet.toml --datadir=.ethereum init /genesis.json
 
 
+EXPOSE 3334
+EXPOSE 8545
 
 
 #Run eth testnet blockchain node
@@ -31,6 +33,10 @@ CMD [ "geth", \
     "--allow-insecure-unlock", \
     "--http.api=personal,eth,net,web3", \
     "--http.corsdomain='*'", \
+    "--ws", \
+    "--ws.port=3334", \
+    "--ws.origins='*'", \
+    "--ws.api=personal,eth,net,web3", \
     "--maxpeers=50", \
     "--light.maxpeers=25", \
     "--datadir=.ethereum", \
