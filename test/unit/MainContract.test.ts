@@ -39,6 +39,10 @@ describe('MainContract unit tests', () => {
 
         writeFileSync(join(tmpdir, 'main_test.json'), JSON.stringify(contract.abi, null, 2))
         writeFileSync(join(tmpdir, 'main_test.bin'), '0x'+contract.evm.bytecode.object)
+        writeFileSync(
+            join(tmpdir, 'main_test.metadata.json'), 
+            JSON.stringify(JSON.parse(contract.metadata), null, 2)
+        )
 
         const deployResult = await rpc.deployContract(contract, root.privateKey, root.address)
 
