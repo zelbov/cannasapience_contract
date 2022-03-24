@@ -26,11 +26,22 @@ export const compileSolidityContract = (contractPath: string) => {
         settings: {
             outputSelection: {
                 '*': {
-                    '*': ['*'],
+                    '*': [
+                        "evm.bytecode",
+                        "evm.deployedBytecode",
+                        "devdoc",
+                        "userdoc",
+                        "metadata",
+                        "abi"
+                    ],
                 },
             },
             optimizer: {
                 enabled: true
+            },
+            metadata: {
+                // Use only literal content and not URLs (false by default)
+                useLiteralContent: true,
             },
             remappings: [
                 `@openzeppelin=${process.cwd()}/node_modules/@openzeppelin`,

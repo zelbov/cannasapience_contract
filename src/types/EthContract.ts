@@ -2,6 +2,9 @@
 export interface CompiledEthContractObject {
 
     abi: any[]
+    metadata: any
+    userdoc: any
+    devdoc: any
     evm: {
         bytecode: {
             object: any
