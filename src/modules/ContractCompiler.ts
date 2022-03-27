@@ -38,7 +38,7 @@ export const saveContractArtifacts = (contractName: string, data: {
 
 const injectEnv = (source: string) => {
 
-    let envId = source.match(/\_\_(.+)\_\_/)
+    let envId = source.match(/\_\_(.+?)\_\_/)
 
     while(envId && envId[0]) {
 
@@ -46,7 +46,7 @@ const injectEnv = (source: string) => {
 
         source = source.replace(id, process.env[cut] || '')
 
-        envId = source.match(/\_\_(.+)\_\_/)
+        envId = source.match(/\_\_(.+?)\_\_/)
 
     }
 
@@ -109,7 +109,7 @@ export const compileSolidityContract = (contractPath: string) => {
             import: (filePath: string) => {
 
                 return {
-                    contents: fs.readFileSync(filePath).toString()
+                    contents: injectEnv(fs.readFileSync(filePath).toString())
                 }
 
             }
