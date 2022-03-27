@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import 'mocha/mocha'
 import { join } from 'path/posix'
 import { compileSolidityContract } from '../../src/modules/ContractCompiler'
@@ -27,28 +26,16 @@ describe('MainContract unit tests', () => {
                 )
             ),
             contracts = compiled.contracts['main.sol'],
-            contractNames = Object.keys(contracts)
+            contractNames = Object.keys(contracts),
+            mainContractName = contractNames.reverse()[0]
 
-        console.log({ contractNames })
-
-        contract = contracts[contractNames.reverse()[0]]
-
-        const tmpdir = join(process.cwd(), 'tmp')
-
-        if(!existsSync(tmpdir)) mkdirSync(tmpdir)
-
-        writeFileSync(join(tmpdir, 'main_test.json'), JSON.stringify(contract.abi, null, 2))
-        writeFileSync(join(tmpdir, 'main_test.bin'), '0x'+contract.evm.bytecode.object)
-        writeFileSync(
-            join(tmpdir, 'main_test.metadata.json'), 
-            JSON.stringify(JSON.parse(contract.metadata), null, 2)
-        )
+        contract = contracts[mainContractName]
 
         const deployResult = await rpc.deployContract(contract, root.privateKey, root.address)
 
         contractAddress = deployResult.contractAddress!
 
-        console.log('Root contract address:', contractAddress)
+        console.log(mainContractName, 'contract address:', contractAddress)
 
     })
 
@@ -64,6 +51,8 @@ describe('MainContract unit tests', () => {
                     contract, contractAddress, 'mint', [], root.privateKey, root.address
                 ),
                 tx = await rpc.sendContractCallTransaction(call.signed)
+
+            console.log('Dynamic mint TX:', tx)
     
             const newAddress = tx.logs[0].address
 

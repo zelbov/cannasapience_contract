@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { readFileSync } from 'fs'
 import 'mocha/mocha'
 import { join } from 'path'
 import { compileSolidityContract } from '../../src/modules/ContractCompiler'
@@ -37,16 +37,6 @@ describe('ERC20 dummy contract unit testing', () => {
 
         contractAddress = rcpt.contractAddress!
 
-        const tmpdir = join(process.cwd(), 'tmp')
-
-        if(!existsSync(tmpdir))
-            mkdirSync(tmpdir)
-
-        writeFileSync(
-            join(tmpdir, 'test_erc20.abi.json'),
-            JSON.stringify(contract.abi, null, 2)
-        )
-
     })
 
     it('Get deployed ERC20 name & symbol contract values; should match defined in code', async function(){
@@ -58,6 +48,36 @@ describe('ERC20 dummy contract unit testing', () => {
         const symbol = await rpc.getContractPropertyValue(contract, contractAddress, 'symbol', root.address)
 
         expect(symbol).eq('TST')
+
+    })
+
+    it('Make transferFrom call: should succeed & update balance values', async function(){
+
+        this.timeout(0)
+
+        const recipient = (await rpc.createAccount()).address
+
+        console.log('Recipient:', recipient)
+
+        const tx = await rpc.prepareContractCallTransaction(
+            contract, contractAddress,
+            'transfer', [recipient, '100000'],
+            root.privateKey, root.address
+        )
+
+        const result = await rpc.sendContractCallTransaction(tx.signed)
+
+        console.log('Transfer result:', JSON.stringify(result, null, 2))
+
+        expect(result.status).eq(true)
+
+    })
+
+    it('Get owner account balance: should reduce by previously sent value', async function(){
+
+        const result = await rpc.getContractPropertyValue(contract, contractAddress, 'balanceOf', root.address, [root.address])
+
+        expect(result).eq('900000')
 
     })
 

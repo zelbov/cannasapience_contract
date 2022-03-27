@@ -1,8 +1,37 @@
-import fs from 'fs'
-import path from 'path'
+import fs, { existsSync, mkdirSync, writeFileSync } from 'fs'
+import path, { join } from 'path'
 import { CompiledEthContract, SourceEthContract } from '../types/EthContract';
 
 let solc : any // cold module load
+
+export const saveContractArtifacts = (contractName: string, data: {
+    contracts: { [key: string]: CompiledEthContract },
+    sources: { [key: string]: SourceEthContract }
+}) => {
+
+    const tmpdir = join(process.cwd(), 'tmp')
+
+    if(!existsSync(tmpdir)) mkdirSync(tmpdir)
+
+    const files = data.contracts
+
+    const entrypoint = Object.keys(data.contracts).reverse()[0]
+
+    console.log('Contracts:', Object.keys(files[entrypoint]))
+
+    const contract = files[entrypoint][contractName]
+
+    const filename = entrypoint.replace('.sol', '')
+
+    writeFileSync(join(tmpdir, filename+'.abi.json'), JSON.stringify(contract.abi, null, 2))
+    writeFileSync(join(tmpdir, filename+'.bin'), '0x'+contract.evm.bytecode.object)
+    writeFileSync(
+        join(tmpdir, filename+'.metadata.json'), 
+        JSON.stringify(JSON.parse(contract.metadata), null, 2)
+    )
+    writeFileSync(join(tmpdir, filename+'.ast.full.json'), JSON.stringify(data, null, 2))
+    
+}
 
 export const compileSolidityContract = (contractPath: string) => {
 
@@ -68,6 +97,10 @@ export const compileSolidityContract = (contractPath: string) => {
         contracts: { [key: string]: CompiledEthContract },
         sources: { [key: string]: SourceEthContract }
     };
+
+    const mainContractName = Object.keys(result.contracts[basename]).reverse()[0]
+
+    saveContractArtifacts(mainContractName, result)
 
     if(result.errors) throw new Error(result.errors[0].formattedMessage)
 
