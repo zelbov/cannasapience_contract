@@ -1,6 +1,9 @@
 import fs, { existsSync, mkdirSync, writeFileSync } from 'fs'
 import path, { join } from 'path'
 import { CompiledEthContract, SourceEthContract } from '../types/EthContract';
+import { config as env } from 'dotenv'
+
+env()
 
 let solc : any // cold module load
 
@@ -33,6 +36,24 @@ export const saveContractArtifacts = (contractName: string, data: {
     
 }
 
+const injectEnv = (source: string) => {
+
+    let envId = source.match(/\_\_(.+)\_\_/)
+
+    while(envId && envId[0]) {
+
+        const id = envId[0], cut = id.replace(/^\_\_|\_\_$/g, '')
+
+        source = source.replace(id, process.env[cut] || '')
+
+        envId = source.match(/\_\_(.+)\_\_/)
+
+    }
+
+    return source;
+
+}
+
 export const compileSolidityContract = (contractPath: string) => {
 
     if(!solc) solc = require('solc')
@@ -42,6 +63,8 @@ export const compileSolidityContract = (contractPath: string) => {
     source = source // a hack for relative paths support
         .replace(/\.\.\//g, '&&/') // replace double dot rel path
         .replace(/\.\//g, '&/') // replace single dot rel path
+
+    source = injectEnv(source)
     
     const basename = path.basename(contractPath)
     const dirname = path.dirname(contractPath)
@@ -98,11 +121,11 @@ export const compileSolidityContract = (contractPath: string) => {
         sources: { [key: string]: SourceEthContract }
     };
 
+    if(result.errors) throw new Error(result.errors[0].formattedMessage)
+
     const mainContractName = Object.keys(result.contracts[basename]).reverse()[0]
 
     saveContractArtifacts(mainContractName, result)
-
-    if(result.errors) throw new Error(result.errors[0].formattedMessage)
 
     return result as {
         contracts: { [key: string]: CompiledEthContract },
