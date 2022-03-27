@@ -31,12 +31,12 @@ CMD [ "geth", \
     "--identity=testnet", \
     "--http", \
     "--allow-insecure-unlock", \
-    "--http.api=personal,eth,net,web3.debug", \
+    "--http.api=personal,eth,net,web3,txpool,debug", \
     "--http.corsdomain='*'", \
     "--ws", \
     "--ws.port=3334", \
     "--ws.origins='*'", \
-    "--ws.api=personal,eth,net,web3,debug", \
+    "--ws.api=personal,eth,net,web3,txpool,debug", \
     "--maxpeers=50", \
     "--light.maxpeers=25", \
     "--datadir=.ethereum", \
