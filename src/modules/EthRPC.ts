@@ -48,6 +48,17 @@ export class EthRPC {
 
     }
 
+    /**
+     * Readonly contract property accessors & methods call function
+     * Used for calls that do not require an external transaction to push into blockchain
+     * 
+     * @param contract 
+     * @param contractAddress 
+     * @param propertyName 
+     * @param callerAddress 
+     * @param getterParams 
+     * @returns 
+     */
     public async getContractPropertyValue<ValueType = any>(
         contract: CompiledEthContractObject,
         contractAddress: string,
@@ -63,6 +74,20 @@ export class EthRPC {
 
     }
 
+    /**
+     * 
+     * Prepare a transaction for a call of contract function that performs any mutability (requires gas fee)
+     * 
+     * For readonly (properties or accessors with `view` modifier), use `getContractPropertyValue` instead
+     * 
+     * @param contract 
+     * @param contractAddress 
+     * @param method 
+     * @param args 
+     * @param accountPrivateKey 
+     * @param accountAddress 
+     * @returns 
+     */
     public async prepareContractCallTransaction(
         contract: CompiledEthContractObject,
         contractAddress: string,
