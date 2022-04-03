@@ -31,7 +31,7 @@ describe('MainContract unit tests', () => {
 
         contract = contracts[mainContractName]
 
-        const deployResult = await rpc.deployContract(contract, root.privateKey, root.address)
+        const deployResult = await rpc.deployContract(contract, root.privateKey)
 
         contractAddress = deployResult.contractAddress!
 

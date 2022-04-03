@@ -33,7 +33,7 @@ describe('ERC20 dummy contract unit testing', () => {
         contract = compiled.contracts['test_erc20.sol']['TestERC20']
         rpc = new EthRPC()
 
-        const rcpt = await rpc.deployContract(contract, root.privateKey, root.address)
+        const rcpt = await rpc.deployContract(contract, root.privateKey)
 
         contractAddress = rcpt.contractAddress!
 
@@ -62,7 +62,7 @@ describe('ERC20 dummy contract unit testing', () => {
         const tx = await rpc.prepareContractCallTransaction(
             contract, contractAddress,
             'transfer', [recipient, '100000'],
-            root.privateKey, root.address
+            root.privateKey
         )
 
         const result = await rpc.sendContractCallTransaction(tx.signed)

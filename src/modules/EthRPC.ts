@@ -85,7 +85,6 @@ export class EthRPC {
      * @param method 
      * @param args 
      * @param accountPrivateKey 
-     * @param accountAddress 
      * @returns 
      */
     public async prepareContractCallTransaction(
@@ -93,16 +92,16 @@ export class EthRPC {
         contractAddress: string,
         method: string,
         args: any[],
-        accountPrivateKey: string,
-        accountAddress: string
+        accountPrivateKey: string
     ) {
 
         const c = new this._connection.eth.Contract(contract.abi, contractAddress),
             call = c.methods[method](...args),
-            gas : number = await call.estimateGas({ from: accountAddress }),
+            { address } = this.loadAccount(accountPrivateKey),
+            gas : number = await call.estimateGas({ from: address }),
             encoded = call.encodeABI(),
             signed = await this._connection.eth.accounts.signTransaction({
-                from: accountAddress,
+                from: address,
                 to: contractAddress,
                 data: encoded,
                 gas
@@ -128,7 +127,6 @@ export class EthRPC {
     public async prepareSmartContractDeployTransaction(
         contract: CompiledEthContractObject,
         accountPrivateKey: string,
-        accountAddress: string,
         args: any[] = []
     ) {
 
@@ -140,10 +138,11 @@ export class EthRPC {
 
         const c = new this._connection.eth.Contract(contract.abi),
             cTx = c.deploy({ data: contract.evm.bytecode.object, arguments: args }),
-            gas = await cTx.estimateGas({ from: accountAddress }),
+            { address } = this.loadAccount(accountPrivateKey),
+            gas = await cTx.estimateGas({ from: address }),
             signed = await this._connection.eth.accounts.signTransaction(
                 {
-                   from: accountAddress,
+                   from: address,
                    data: cTx.encodeABI(),
                    gas //contract.evm.gasEstimates.creation.totalCost,
                 },
@@ -161,12 +160,11 @@ export class EthRPC {
 
         contract: CompiledEthContractObject,
         accountPrivateKey: string,
-        accountAddress: string,
         params: string[] = []
 
     ) {
        
-        const { signed } = await this.prepareSmartContractDeployTransaction(contract, accountPrivateKey, accountAddress, params)
+        const { signed } = await this.prepareSmartContractDeployTransaction(contract, accountPrivateKey, params)
 
         const createReceipt = await this._connection.eth.sendSignedTransaction(signed.rawTransaction!);
 
