@@ -3,11 +3,21 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./DynamicallyMintable.sol";
+/**
+ * @title Cannasapience NFT contract base
+ */
+contract __CONTRACT_NAME__ is ERC721 {
+    using Counters for Counters.Counter;
 
-contract Main is NFT_Mintable, Ownable {
+    Counters.Counter private currentTokenId;
 
-    constructor() NFT_Mintable() {}
+    constructor() ERC721("__TOKEN_NAME__", "__TOKEN_SYMBOL__") {}
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return "__ERC721_BASE_TOKEN_URI__";
+    }
 
 }

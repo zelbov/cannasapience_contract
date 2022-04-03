@@ -39,40 +39,5 @@ describe('MainContract unit tests', () => {
 
     })
 
-    describe('Dynamic minting', () => {
-
-        let mintedContractAddress: string 
-
-        it('Mint new contract from parent dynamically: should succeed & produce another contract with different addr', async function(){
-
-            this.timeout(0)
-    
-            const call = await rpc.prepareContractCallTransaction(
-                    contract, contractAddress, 'mint', [], root.privateKey, root.address
-                ),
-                tx = await rpc.sendContractCallTransaction(call.signed)
-
-            console.log('Dynamic mint TX:', tx)
-    
-            const newAddress = tx.logs[0].address
-
-            expect(newAddress).not.null.and.not.undefined
-            expect(newAddress).not.eq(contractAddress)
-
-            console.log('Dynamically minted contract address:', newAddress)
-
-            mintedContractAddress = newAddress!
-    
-        })
-
-        it('Get minted contract name: should succeed & match parent template contract name', async function(){
-
-            const name = await rpc.getContractPropertyValue(contract, mintedContractAddress, 'name', root.address)
-
-            expect(name).eq('Cannasapience')
-
-        })
-
-    })
     
 })
