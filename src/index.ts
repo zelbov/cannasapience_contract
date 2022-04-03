@@ -43,7 +43,7 @@ const rpc = new EthRPC()
 
     console.log('Constructor parameters:', params)
 
-    const receipt = await rpc.deployContract(contract, account.privateKey, account.address, params)
+    const receipt = await rpc.deployContract(contract, account.privateKey, params)
 
     console.log('Success! Contract deployment receipt:', receipt)
 
