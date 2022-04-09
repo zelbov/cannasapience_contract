@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { NestApplicationContext } from "@nestjs/core";
 import { SwaggerController } from "../controller/doc/Swagger.controller";
 import { AssetMetadataController } from "../controller/metadata/Metadata.controller";
+import { AssetStorageProvider } from "../provider/AssetStorage.provider";
 
 @Module({
     imports: [],
@@ -9,7 +10,9 @@ import { AssetMetadataController } from "../controller/metadata/Metadata.control
         AssetMetadataController,
         SwaggerController,
     ],
-    providers: []
+    providers: [
+        AssetStorageProvider,
+    ]
 })
 export class App 
 extends NestApplicationContext {}
