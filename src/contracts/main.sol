@@ -16,17 +16,10 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     Counters.Counter private currentTokenId;
 
-    constructor(address _proxyRegistryAddress) ERC721Tradable("__TOKEN_NAME__", "__TOKEN_SYMBOL__", _proxyRegistryAddress) public {}
+    constructor(address _proxyRegistryAddress) ERC721Tradable("__TOKEN_NAME__", "__TOKEN_SYMBOL__", _proxyRegistryAddress) {}
 
-    function baseTokenURI() public view returns (string memory) {
+    function baseTokenURI() override public pure returns (string memory) {
         return "__ERC721_BASE_TOKEN_URI__";
-    }
-
-    function tokenURI(uint256 _tokenId) public view returns (string) {
-        return Strings.strConcat(
-            baseTokenURI(),
-            Strings.uint2str(_tokenId)
-        );
     }
 
 }
