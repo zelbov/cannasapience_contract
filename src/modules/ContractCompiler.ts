@@ -121,7 +121,12 @@ export const compileSolidityContract = (contractPath: string) => {
         sources: { [key: string]: SourceEthContract }
     };
 
-    if(result.errors) throw new Error(result.errors[0].formattedMessage)
+    if(result.errors) {
+        for(let error of result.errors) {
+            if(error.severity != 'warning') throw new Error(error.formattedMessage)
+            else console.warn(error.formattedMessage)
+        }
+    }
 
     const mainContractName = Object.keys(result.contracts[basename]).reverse()[0]
 
