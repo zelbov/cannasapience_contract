@@ -13,14 +13,14 @@ describe('MainContract unit tests', () => {
         rpc: EthRPC,
         root: EthAccount
 
-    before('Deploy main entry point', async function(){
+    before('Deploy main contract', async function(){
 
         this.timeout(0)
 
         rpc = new EthRPC()
         root = rpc.loadAccount(process.env.ETH_WALLET_PKEY!)
 
-        const compiled = await compileSolidityContract(
+        const compiled = compileSolidityContract(
                 join(
                     process.cwd(), 'src', 'contracts', 'main.sol'
                 )
@@ -31,9 +31,11 @@ describe('MainContract unit tests', () => {
 
         contract = contracts[mainContractName]
 
-        const deployResult = await rpc.deployContract(contract, root.privateKey)
+        const deployResult = await rpc.deployContract(contract, root.privateKey, ['0x0000000000000000000000000000000000000000'])
 
         contractAddress = deployResult.contractAddress!
+        
+
 
         console.log(mainContractName, 'contract address:', contractAddress)
 

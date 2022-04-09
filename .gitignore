@@ -3,6 +3,9 @@
 
 /tmp
 
+/storage/assets
+/storage/metadata
+
 .env
 .trash
 .well-known

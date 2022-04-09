@@ -84,15 +84,30 @@ module.exports = function(env, argv) {
     
     }
 
-    const buildBundle = {
+    const apiBundle = {
 
         ...commonConfigs,
 
         entry: {
-            app: [__dirname+'/src/index.ts']
+            app: [__dirname+'/src/api/index.ts']
         },
         output: {
             filename: 'index.js',
+            path: __dirname+'/dist'
+        },
+        mode: env.production ? 'production' : 'development'
+
+    }
+
+    const deployScriptBundle = {
+
+        ...commonConfigs,
+
+        entry: {
+            app: [__dirname+'/src/deploy.ts']
+        },
+        output: {
+            filename: 'deploy.js',
             path: __dirname+'/dist'
         },
         mode: env.production ? 'production' : 'development'
@@ -143,11 +158,18 @@ module.exports = function(env, argv) {
 
     if(!argv.mode) {
 
-        Object.assign(buildBundle, { mode: 'production' });
+        Object.assign(apiBundle, { mode: 'production' });
+        Object.assign(deployScriptBundle, { mode: 'production' });
         
     } else {
 
-        Object.assign(buildBundle, {
+        Object.assign(apiBundle, {
+            mode: argv.mode,
+            watch: true,
+            devtool: 'inline-source-map'
+        });
+
+        Object.assign(deployScriptBundle, {
             mode: argv.mode,
             watch: true,
             devtool: 'inline-source-map'
@@ -172,6 +194,6 @@ module.exports = function(env, argv) {
 
     console.log('Bundler starting in', argv.mode || 'production', 'mode');
 
-    return [buildBundle, testsBundle, integrationTestsBundle, benchmarksBundle];
+    return [apiBundle, deployScriptBundle, testsBundle, integrationTestsBundle, benchmarksBundle];
 
 }

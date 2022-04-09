@@ -20,8 +20,6 @@ export const saveContractArtifacts = (contractName: string, data: {
 
     const entrypoint = Object.keys(data.contracts).reverse()[0]
 
-    console.log('Contracts:', Object.keys(files[entrypoint]))
-
     const contract = files[entrypoint][contractName]
 
     const filename = entrypoint.replace('.sol', '')

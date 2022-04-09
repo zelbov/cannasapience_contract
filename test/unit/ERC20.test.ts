@@ -57,8 +57,6 @@ describe('ERC20 dummy contract unit testing', () => {
 
         const recipient = (await rpc.createAccount()).address
 
-        console.log('Recipient:', recipient)
-
         const tx = await rpc.prepareContractCallTransaction(
             contract, contractAddress,
             'transfer', [recipient, '100000'],
@@ -66,8 +64,6 @@ describe('ERC20 dummy contract unit testing', () => {
         )
 
         const result = await rpc.sendContractCallTransaction(tx.signed)
-
-        console.log('Transfer result:', JSON.stringify(result, null, 2))
 
         expect(result.status).eq(true)
 
