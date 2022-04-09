@@ -71,6 +71,8 @@ services:
   blockscout:
     depends_on:
       - blockscout-db
+      - contract-light
+      - contract-testnet
     image: blockscout/blockscout
     container_name: "blockscout"
     environment:
