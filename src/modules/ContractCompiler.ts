@@ -42,6 +42,8 @@ const injectEnv = (source: string) => {
 
         const id = envId[0], cut = id.replace(/^\_\_|\_\_$/g, '')
 
+        if(!process.env[cut]) throw new Error(`Env var "${cut}" used in source but not defined`)
+
         source = source.replace(id, process.env[cut] || '')
 
         envId = source.match(/\_\_(.+?)\_\_/)
