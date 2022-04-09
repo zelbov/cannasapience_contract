@@ -1,9 +1,12 @@
 import 'mocha/mocha'
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path'
+import { config } from 'dotenv'
 
 process.env.NODE_ENV = 'test';
 process.env.DISABLE_API_LOGGING = 'true'
+
+config({ path: '.env.sample' })
 
 describe('Benchmarking', () => {
 
