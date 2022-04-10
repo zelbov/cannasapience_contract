@@ -33,8 +33,8 @@ abstract contract ERC721Tradable is ERC721, ContextMixin, NativeMetaTransaction,
      * We track the nextTokenId instead of the currentTokenId to save users on gas costs. 
      * Read more about it here: https://shiny.mirror.xyz/OUampBbIz9ebEicfGnQf5At_ReMHlZy0tB4glb9xQ0E
      */ 
-    Counters.Counter private _nextTokenId;
-    address proxyRegistryAddress;
+    Counters.Counter internal _nextTokenId;
+    address public proxyRegistryAddress;
 
     constructor(
         string memory _name,

@@ -1,6 +1,8 @@
+import { INestApplication } from '@nestjs/common'
 import { expect } from 'chai'
 import 'mocha/mocha'
 import { join } from 'path/posix'
+import { startService } from '../../src/api'
 import { compileSolidityContract } from '../../src/modules/ContractCompiler'
 import { EthRPC } from '../../src/modules/EthRPC'
 import { EthAccount } from '../../src/types/EthAccount'
@@ -31,13 +33,68 @@ describe('MainContract unit tests', () => {
 
         contract = contracts[mainContractName]
 
-        const deployResult = await rpc.deployContract(contract, root.privateKey, ['0x0000000000000000000000000000000000000000'])
+        const deployResult = await rpc.deployContract(contract, root.privateKey)
 
         contractAddress = deployResult.contractAddress!
         
 
+    })
 
-        console.log(mainContractName, 'contract address:', contractAddress)
+    describe('Minting tokens', () => {
+
+        it('Check token URI by tokenId: should match valid URI')
+
+        //...
+        it('Mint new token: should succeed')
+
+    })
+
+    describe('Whitelisting & pre-sale performance', () => {
+
+        //...
+
+    })
+
+    describe('Public sale performance', () => {
+
+        //...
+
+    })
+
+    describe('Shares & royalties performance', () => {
+
+        //...
+
+    })
+
+    describe('OpenSea integrations performance', () => {
+
+        describe('Tokens publishing & distribution', () => {
+
+            let app: INestApplication
+
+            after('Shutdown', async function(){
+
+                if(app) await app.close()
+                
+            })
+
+            before('Startup', async function(){
+
+                app = await startService()
+
+            })
+
+            it('Publish asset & its metadata: should succeed')
+            it('Get metadata of asset: should succeed & pass validation')
+
+        })
+
+        describe('Proxy registry & access performance', () => {
+
+            //...
+
+        })
 
     })
 
