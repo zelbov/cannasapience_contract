@@ -5,6 +5,9 @@
 
 /storage/assets
 /storage/metadata
+/storage/previews
+
+/log
 
 .env
 .trash

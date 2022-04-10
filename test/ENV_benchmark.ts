@@ -23,7 +23,7 @@ describe('Benchmarking', () => {
     before(async function(){
 
         const dumpsPath = path.join(
-            process.cwd(), 'public', 'log', 'benchmark'
+            process.cwd(), 'log', 'benchmark'
         )
 
         if(!existsSync(dumpsPath))
