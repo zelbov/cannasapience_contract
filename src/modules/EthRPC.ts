@@ -3,6 +3,7 @@ import { SignedTransaction } from 'web3-core/types'
 import { DEFAULT_ETH_TX_GAS } from '../constants/EthMainnet';
 import { EthAccount } from '../types/EthAccount';
 import { CompiledEthContractObject } from '../types/EthContract';
+import { TransactionConfig } from '../types/EthTransactions';
 
 type ClientOptions = {
 
@@ -92,25 +93,35 @@ export class EthRPC {
         contractAddress: string,
         method: string,
         args: any[],
-        accountPrivateKey: string
+        accountPrivateKey: string,
+        value: string = '0'
     ) {
 
         const c = new this._connection.eth.Contract(contract.abi, contractAddress),
             call = c.methods[method](...args),
-            { address } = this.loadAccount(accountPrivateKey),
-            gas : number = await call.estimateGas({ from: address }),
             encoded = call.encodeABI(),
-            signed = await this._connection.eth.accounts.signTransaction({
+            { address } = this.loadAccount(accountPrivateKey),
+            estimateConfig = { from: address, to: contractAddress, data: encoded, value }
+
+        Object.assign(estimateConfig, { value })
+
+        const gas : number = await call.estimateGas(estimateConfig),
+            
+            tx : TransactionConfig = {
                 from: address,
                 to: contractAddress,
-                data: encoded,
+                data: encoded, value,
                 gas
-            }, accountPrivateKey)
+            }
+
+        Object.assign(tx, { value })
+            
+        const signed = await this._connection.eth.accounts.signTransaction(tx, accountPrivateKey)
 
         if(!signed.rawTransaction)
-            throw new Error('Could not deploy smart contract: signed transaction raw data is missing')
+            throw new Error('Could not call smart contract: signed transaction raw data is missing')
 
-        return { signed, gas } as { signed: SignedTransaction & { rawTransaction: string }, gas: number };
+        return { tx, signed, gas } as { tx: typeof tx, signed: SignedTransaction & { rawTransaction: string }, gas: number };
 
     }
 
@@ -144,7 +155,7 @@ export class EthRPC {
                 {
                    from: address,
                    data: cTx.encodeABI(),
-                   gas //contract.evm.gasEstimates.creation.totalCost,
+                   gas
                 },
                 accountPrivateKey
             );
