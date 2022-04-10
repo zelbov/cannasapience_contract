@@ -7,10 +7,7 @@ env()
 
 let solc : any // cold module load
 
-export const saveContractArtifacts = (contractName: string, data: {
-    contracts: { [key: string]: CompiledEthContract },
-    sources: { [key: string]: SourceEthContract }
-}) => {
+export const saveContractArtifacts = (contractName: string, data: OutputResult) => {
 
     const tmpdir = join(process.cwd(), 'tmp')
 
@@ -51,6 +48,22 @@ const injectEnv = (source: string) => {
     }
 
     return source;
+
+}
+
+interface OutputResult {
+    errors: any[]
+    contracts: { [key: string]: CompiledEthContract },
+    sources: { [key: string]: SourceEthContract }
+}
+
+const dumpInputJson = (contractName: string, input: Object) => {
+
+    const tmpdir = join(process.cwd(), 'tmp')
+
+    if(!existsSync(tmpdir)) mkdirSync(tmpdir)
+
+    writeFileSync(join(tmpdir, contractName+'.input.json'), JSON.stringify(input, null, 2))
 
 }
 
@@ -110,11 +123,7 @@ export const compileSolidityContract = (contractPath: string) => {
             }
         })
 
-    const result = JSON.parse(compiled) as {
-        errors: any[]
-        contracts: { [key: string]: CompiledEthContract },
-        sources: { [key: string]: SourceEthContract }
-    };
+    const result = JSON.parse(compiled) as OutputResult;
 
     if(result.errors) {
         for(let error of result.errors) {
@@ -126,6 +135,7 @@ export const compileSolidityContract = (contractPath: string) => {
     const mainContractName = Object.keys(result.contracts[basename]).reverse()[0]
 
     saveContractArtifacts(mainContractName, result)
+    dumpInputJson(mainContractName, input);
 
     return result as {
         contracts: { [key: string]: CompiledEthContract },
