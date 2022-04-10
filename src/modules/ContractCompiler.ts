@@ -23,11 +23,26 @@ export const saveContractArtifacts = (contractName: string, data: OutputResult) 
 
     writeFileSync(join(tmpdir, filename+'.abi.json'), JSON.stringify(contract.abi, null, 2))
     writeFileSync(join(tmpdir, filename+'.bin'), '0x'+contract.evm.bytecode.object)
+
+    const metadata = JSON.parse(contract.metadata)
+
     writeFileSync(
         join(tmpdir, filename+'.metadata.json'), 
-        JSON.stringify(JSON.parse(contract.metadata), null, 2)
+        JSON.stringify(metadata, null, 2)
     )
     writeFileSync(join(tmpdir, filename+'.ast.full.json'), JSON.stringify(data, null, 2))
+
+    const { sources, settings, language } = metadata;
+
+    // Blockscout validator does not like these keys somewhat
+    for(let name of Object.keys(sources)) delete sources[name].license;
+    delete settings.compilationTarget;
+
+    const stdJSONInput = {
+        sources, settings, language
+    }
+
+    writeFileSync(join(tmpdir, filename+'.input-compiled.json'), JSON.stringify(stdJSONInput, null, 2))
     
 }
 
@@ -55,16 +70,6 @@ interface OutputResult {
     errors: any[]
     contracts: { [key: string]: CompiledEthContract },
     sources: { [key: string]: SourceEthContract }
-}
-
-const dumpInputJson = (contractName: string, input: Object) => {
-
-    const tmpdir = join(process.cwd(), 'tmp')
-
-    if(!existsSync(tmpdir)) mkdirSync(tmpdir)
-
-    writeFileSync(join(tmpdir, contractName+'.input.json'), JSON.stringify(input, null, 2))
-
 }
 
 export const compileSolidityContract = (contractPath: string) => {
@@ -116,9 +121,9 @@ export const compileSolidityContract = (contractPath: string) => {
                         ? path.join(process.cwd(), 'node_modules', filePath)
                         : path.join(dirname, filePath)
 
-                return {
-                    contents: injectEnv(fs.readFileSync(filePath).toString())
-                }
+                const contents = injectEnv(fs.readFileSync(filePath).toString())
+
+                return { contents }
 
             }
         })
@@ -135,7 +140,6 @@ export const compileSolidityContract = (contractPath: string) => {
     const mainContractName = Object.keys(result.contracts[basename]).reverse()[0]
 
     saveContractArtifacts(mainContractName, result)
-    dumpInputJson(mainContractName, input);
 
     return result as {
         contracts: { [key: string]: CompiledEthContract },
