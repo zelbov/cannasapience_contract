@@ -60,10 +60,6 @@ export const compileSolidityContract = (contractPath: string) => {
 
     let source = fs.readFileSync(contractPath, 'utf8')
 
-    source = source // a hack for relative paths support
-        .replace(/\.\.\//g, '&&/') // replace double dot rel path
-        .replace(/\.\//g, '&/') // replace single dot rel path
-
     source = injectEnv(source)
     
     const basename = path.basename(contractPath)
@@ -92,14 +88,8 @@ export const compileSolidityContract = (contractPath: string) => {
                 enabled: true
             },
             metadata: {
-                // Use only literal content and not URLs (false by default)
                 useLiteralContent: true,
-            },
-            remappings: [
-                `@openzeppelin=${process.cwd()}/node_modules/@openzeppelin`,
-                `&&/=${path.resolve(dirname, '..')}/`,
-                `&/=${dirname}/`,
-            ],
+            }
         },
     };
 
@@ -107,6 +97,11 @@ export const compileSolidityContract = (contractPath: string) => {
         JSON.stringify(input),
         {
             import: (filePath: string) => {
+
+                filePath = 
+                    filePath.match(/^\@/) 
+                        ? path.join(process.cwd(), 'node_modules', filePath)
+                        : path.join(dirname, filePath)
 
                 return {
                     contents: injectEnv(fs.readFileSync(filePath).toString())
