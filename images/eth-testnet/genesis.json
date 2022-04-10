@@ -10,7 +10,7 @@
         "istanbulBlock": 0,
         "constantinopleBlock": 0,
         "clique": {
-            "period": 1,
+            "period": 0,
             "epoch": 30000
         }
     },
