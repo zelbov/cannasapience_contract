@@ -59,19 +59,15 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     function isWhitelisted(address user) public view returns(bool) {
 
-        if(whitelisted[user]) return true;
-        else return false;
+        return !!whitelisted[user];
 
     }
-
-    event Whitelisted(address);
 
     function applyForWhitelist() public {
         
         require(!isWhitelisted(msg.sender), "Already whitelisted");
 
         whitelisted[msg.sender] = true;
-        emit Whitelisted(msg.sender);
     
     }
 
