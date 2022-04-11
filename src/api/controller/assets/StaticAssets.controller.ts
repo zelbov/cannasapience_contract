@@ -3,5 +3,5 @@ import { join } from "path";
 
 export const ServeStaticAssets = ServeStaticModule.forRoot({
     rootPath: join(process.cwd(), 'storage', 'assets'),
-    renderPath: '/nft_assets/assets'
+    serveRoot: '/nft_assets/assets'
 })

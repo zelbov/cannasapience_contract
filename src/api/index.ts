@@ -5,6 +5,7 @@ import { NestFactory } from "@nestjs/core";
 import { App } from "./common/App";
 import { SwaggerController } from "./controller/doc/Swagger.controller";
 import { HttpExceptionFilter } from "./controller/filter/ExceptionFilter";
+import morgan from 'morgan'
 
 if(!process.env.API_PORT)
         throw new Error('API_PORT env var not specified. Make sure you restored config from sample.')
@@ -24,6 +25,14 @@ export const startService = async () => {
     app.enableShutdownHooks();
     app.enableCors({ origin: '*' });
     SwaggerController.init(app);
+
+    morgan.token('body', (req) => JSON.stringify(
+        //@ts-ignore
+        req['body']
+    ))
+    if(!process.env.DISABLE_API_LOGGING)
+        app.use(morgan(':status :method \t:response-time ms -> :url :body'))
+    
     await app.listen(port);
     return app;
 
