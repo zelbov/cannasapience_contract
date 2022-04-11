@@ -27,6 +27,8 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
         // whitelist contract owner's address & instantiate an initial storage to avoid gas cost increase at next application
         applyForWhitelist();
     
+        setPresaleStartTime(block.timestamp + __PRESALE_START_DELAY_DAYS__ * 86400);
+    
     }
 
     function baseTokenURI() override public pure returns (string memory) {
@@ -46,11 +48,6 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
     uint256 public constant MAX_PRESALE_TOKENS_MINT = __MAX_PRESALE_TOKENS_MINT__;
 
     uint256 public constant MAX_PUBLIC_SALE_TOKENS_MINT = __MAX_PUBLIC_SALE_TOKENS_MINT__;
-
-    uint256 public PRESALE_START = block.timestamp + __PRESALE_START_DELAY_DAYS__ * 86400;
-    //TODO chose appropriate H:m:s value for better cost optimization
-
-    uint256 public PRESALE_END = PRESALE_START + 86400 * __PRESALE_DURATION_DAYS__;
 
     uint256 public constant PRESALE_TOKEN_VALUE = __PRESALE_TOKEN_PRICE_ETH__;
 
@@ -79,6 +76,25 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
     }
 
     // Periods
+
+    uint256 private PRESALE_START = 0;
+    uint256 private PRESALE_END = 0;
+    //TODO chose appropriate H:m:s value for better cost optimization
+
+    function setPresaleStartTime(uint256 time) private onlyOwner {
+
+        // initial presale start time is being set withing constructor call 
+        // and cannot be modified further (re-entrancy prevention)
+        require(PRESALE_START == 0 && PRESALE_END == 0, "Presale start & end time already assigned");
+
+        PRESALE_START = time;
+        PRESALE_END = PRESALE_START + 86400 * __PRESALE_DURATION_DAYS__;
+
+    }
+
+    function presaleStartTime() public view returns(uint256) { return PRESALE_START; }
+
+    function publicSaleStartTime() public view returns(uint256) { return PRESALE_END; }
 
     function isPresale() public view returns(bool) {
 
