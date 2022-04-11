@@ -179,4 +179,12 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     }
 
+    // Withdrawal
+
+    function withdrawAll() public onlyOwner {
+
+        payable(msg.sender).transfer(address(this).balance);
+
+    }
+
 }
