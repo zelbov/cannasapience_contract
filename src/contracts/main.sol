@@ -27,7 +27,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
         // whitelist contract owner's address & instantiate an initial storage to avoid gas cost increase at next application
         applyForWhitelist();
     
-        setPresaleStartTime(block.timestamp + __PRESALE_START_DELAY_DAYS__ * 86400);
+        setPresaleStartTime(block.timestamp + __PRESALE_START_DELAY_SECONDS__);
     
     }
 
@@ -79,7 +79,6 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     uint256 private PRESALE_START = 0;
     uint256 private PRESALE_END = 0;
-    //TODO chose appropriate H:m:s value for better cost optimization
 
     function setPresaleStartTime(uint256 time) private onlyOwner {
 
@@ -88,7 +87,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
         require(PRESALE_START == 0 && PRESALE_END == 0, "Presale start & end time already assigned");
 
         PRESALE_START = time;
-        PRESALE_END = PRESALE_START + 86400 * __PRESALE_DURATION_DAYS__;
+        PRESALE_END = PRESALE_START + __PRESALE_DURATION_SECONDS__;
 
     }
 
@@ -116,9 +115,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     }
 
-    function isAppliedForPresale(uint256 _tokenId) public view returns(bool) {
-
-        if(block.timestamp > PRESALE_END) return false;
+    function isAppliedForPresale(uint256 _tokenId) public pure returns(bool) {
 
         return _tokenId > RESERVE_FOR_AIRDROPS && _tokenId <= RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS;
 
