@@ -1,0 +1,7 @@
+{
+    "name": "Asset #{TOKEN_ID}",
+    "description": "Description of token #{TOKEN_ID}",
+    "external_url": "{BASE_TOKEN_URI}/assets/{TOKEN_ID}.file",
+    "image": "{BASE_TOKEN_URI}/previews/{TOKEN_ID}.svg",
+    "attributes": []
+}
