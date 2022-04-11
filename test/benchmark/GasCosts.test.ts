@@ -13,7 +13,19 @@ describe('Gas costs performance', () => {
         rpc: EthRPC,
         root: EthAccount
 
-    before('Deploy main contract', async function(){
+    let reports : (string | number | Object)[] = [];
+
+    const report = (...data: (string | number | Object)[]) => reports.push(...data, '\n')
+
+    const showReports = () => { console.log('** Reports: **\n',...reports, '\n'); reports = [] }
+
+    afterEach(() => {
+
+        showReports()
+
+    })
+
+    before('Compile main contract', async function(){
 
         this.timeout(0)
 
@@ -31,35 +43,46 @@ describe('Gas costs performance', () => {
 
         contract = contracts[mainContractName]
 
-        const deployTx = await rpc.prepareSmartContractDeployTransaction(
-            contract, root.privateKey
-        )
-
-        console.log('Deployment gas cost estimated:', deployTx.gas)
-
-        expect(deployTx.gas).lte(5_000_000)
-
-        const deployResult = await rpc.deployContract(contract, root.privateKey)
-
-        contractAddress = deployResult.contractAddress!
-
     })
 
     describe('Gas costs', () => {
 
-        it('Whitelisting', async function(){
+        const listed : string[] = [], listedAmount = +process.env.MAX_USER_MINTED_TOKENS_PER_TX! + 2;
 
-            this.timeout(0);
+        before(async function(){
 
-            const listed = [], listedAmount = 5;
+            this.timeout(0)
 
             for(let i = 0; i < listedAmount; i++) {
 
                 const wallet = await rpc.createAccount()
                 listed.push(wallet.privateKey)
                 await rpc.sendETH(root.privateKey, wallet.address, '0.1');
-
+    
             }
+
+        })
+
+        it('Deployment', async function(){
+
+            const deployTx = await rpc.prepareSmartContractDeployTransaction(
+                contract, root.privateKey
+            )
+
+            const deployResult = await rpc.deployContract(contract, root.privateKey)
+
+            contractAddress = deployResult.contractAddress!
+
+            report('Deployment gas cost estimated:', deployTx.gas)
+            report('Deployment gas used:', deployResult.gasUsed)
+
+            expect(deployTx.gas).lte(5_000_000)
+
+        })
+
+        it('Whitelisting', async function(){
+
+            this.timeout(0);
 
             let idx = 0;
 
@@ -77,55 +100,89 @@ describe('Gas costs performance', () => {
                 const rcpt = await rpc.sendContractCallTransaction(signed)
 
                 expect(rcpt.status).eq(true)
-                console.log('Tx #', idx, ': gas used:', rcpt.gasUsed, 'of', gas, 'estimated')
+                report('Tx #', idx, ': gas used:', rcpt.gasUsed, 'of', gas, 'estimated')
 
             }
 
         })
 
-        it('Token minting', async function(){
+        for(let amount = 1; amount <= +process.env.MAX_USER_MINTED_TOKENS_PER_TX!; amount++)
+        it('Token minting: '+amount+' tokens per tx', async function(){
 
             this.timeout(0);
 
             const mintPrice = process.env.PRESALE_TOKEN_PRICE_ETH!.replace(' ether', '')
 
-            console.log('Mint price:', mintPrice, 'ETH')
+            report('Mint price:', mintPrice, 'ETH')
 
             const mintPriceValue = rpc.client.utils.toWei(mintPrice, 'ether')
 
-            const tokensPerTx = 3; //TODO: env
+            const tokensPerTx = amount;
 
             let idx = 0;
 
-            let tokensToMint = 3, maxMinted = +process.env.MAX_PRESALE_TOKENS_MINT!
+            let tokensToMint = amount, maxMinted = +process.env.MAX_PRESALE_TOKENS_MINT!
 
-            for(let i = 0; i < maxMinted; i += tokensToMint) {
+            const initiatorPkey = listed[amount]
+
+            for(let i = 0; i < maxMinted && idx < 3; i += tokensToMint) {
 
                 idx++;
 
-                if(i > maxMinted) tokensToMint -= i - maxMinted
+                if(idx * tokensToMint > maxMinted) tokensToMint -= idx * tokensToMint - maxMinted
 
                 const { signed, gas } = await rpc.prepareContractCallTransaction(
                     contract,
                     contractAddress,
                     'mintTokens',
                     [tokensToMint],
-                    root.privateKey,
+                    initiatorPkey,
                     (Math.ceil(+mintPriceValue * tokensPerTx)).toString()
                 );
                     
                 const rcpt = await rpc.sendContractCallTransaction(signed)
 
                 expect(rcpt.status).eq(true);
-                console.log('Tx #', idx, ': gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
+                report(
+                    'Tx #',idx,': gas used:',rcpt.gasUsed,'of',gas,'estimated.', 
+                    'Minted',tokensToMint,'tokens'
+                );
 
             }
 
         })
-        it('Airdropping')
 
-        it('Pre-sale & approvals')
-        it('Public sale & approvals')
+        it('Airdropping', async function(){
+
+            this.timeout(0)
+
+            const tokensToAirdrop = 5 < +process.env.RESERVE_FOR_AIRDROPS! ? 5 : +process.env.RESERVE_FOR_AIRDROPS!
+
+            let idx = 0;
+
+            for(let i = 0; i < tokensToAirdrop; i++) {
+
+                idx++;
+
+                const { address } = await rpc.createAccount()
+
+                const { signed, gas } = await rpc.prepareContractCallTransaction(
+                    contract,
+                    contractAddress,
+                    'airdrop',
+                    [address, idx],
+                    root.privateKey
+                )
+
+                const rcpt = await rpc.sendContractCallTransaction(signed)
+
+                expect(rcpt.status).eq(true)
+
+                report('Tx #', idx, ': gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
+
+            }
+            
+        })
 
     })
 

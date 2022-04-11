@@ -129,39 +129,48 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     function mintTokens(uint256 numOfTokens) public payable {
 
-        require(numOfTokens <= MAX_USER_MINTED_TOKENS_PER_TX, "Mint limit per tx is __MAX_USER_MINTED_TOKENS_PER_TX__");
+        require(numOfTokens <= MAX_USER_MINTED_TOKENS_PER_TX, "Mint limit per transation is __MAX_USER_MINTED_TOKENS_PER_TX__");
+
         require(isPresale() || isPublicSale(), "Only available during presale or public sale");
-        require(isPresale() && isWhitelisted(msg.sender) || isPublicSale(), "Minting at presale only available for whitelisted users");
 
-        uint256 mul = isPresale() ? PRESALE_TOKEN_VALUE : isPublicSale() ? PUBLIC_SALE_TOKEN_VALUE : 0;
-        uint256 expected = numOfTokens * mul;
         uint256 offset = _nextTokenId.current();
+        uint256 currentBalance = balanceOf(msg.sender);
 
-        require(offset < RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS + 1, "No more reserved tokens left");
-
-        if(isPresale())
+        if(isPresale()) {
+            require(isWhitelisted(msg.sender), "Minting at presale only available for whitelisted users");
             require(
-                balanceOf(msg.sender) <= MAX_PRESALE_TOKENS_MINT - numOfTokens,
-                "Direct minting tokens amount exceeded limit of __MAX_PRESALE_TOKENS_MINT__ at pre-sale"
+                currentBalance <= MAX_PRESALE_TOKENS_MINT - numOfTokens,
+                string(abi.encodePacked(
+                    "Direct minting tokens amount exceeded limit of __MAX_PRESALE_TOKENS_MINT__ at pre-sale. ",
+                    "Requested ", Strings.toString(numOfTokens), " while got ", Strings.toString(currentBalance)
+                ))
             );
-        if(isPublicSale()) 
+            require(
+                offset < RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS + 1,
+                "No more reserved tokens left during presale"
+            );
+        } else {
             require(
                 balanceOf(msg.sender) <= MAX_PUBLIC_SALE_TOKENS_MINT - numOfTokens,
-                "Direct minting tokens amount exceeded limit of __MAX_PUBLIC_SALE_TOKENS_MINT__ at public sale"
+                string(abi.encodePacked(
+                    "Direct minting tokens amount exceeded limit of __MAX_PUBLIC_SALE_TOKENS_MINT__ at public sale. ",
+                    "Requested ", Strings.toString(numOfTokens), " while got ", Strings.toString(currentBalance)
+                ))
             );
+            require(offset + numOfTokens <= MAX_TOKENS, "Insufficient tokens supply remaining for purchase");
+        }
 
-        //TODO: check whether supply exceeds MAX_PRESALE_TOKENS during presale
-
-        require(expected > 0, "Bulk minting not allowed at this time");
+        uint256 mul = isPresale() ? PRESALE_TOKEN_VALUE : PUBLIC_SALE_TOKEN_VALUE;
+        uint256 expected = numOfTokens * mul;
+        
         require(
             expected <= msg.value, 
             string(abi.encodePacked(
                 "Insufficient funds provided. Expected ",
-                Strings.toString(expected),
-                " wei, got ", Strings.toString(msg.value)
+                Strings.toString(expected / 10^18),
+                " wei, got ", Strings.toString(msg.value / 10^18)
             ))    
         );
-        require(offset + numOfTokens <= MAX_TOKENS, "Insufficient tokens supply remaining for purchase");
 
         for(uint256 _tokenId = offset + 1; _tokenId < offset + numOfTokens + 1; _tokenId++){
             _safeMint(msg.sender, _tokenId);
