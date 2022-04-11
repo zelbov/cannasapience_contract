@@ -17,7 +17,7 @@ describe('Gas costs performance', () => {
 
     const report = (...data: (string | number | Object)[]) => reports.push(...data, '\n')
 
-    const showReports = () => { console.log('** Reports: **\n',...reports, '\n'); reports = [] }
+    const showReports = () => { if(reports.length) console.log('** Reports: **\n',...reports, '\n'); reports = [] }
 
     afterEach(() => {
 
@@ -63,6 +63,8 @@ describe('Gas costs performance', () => {
 
         })
 
+        let deployed = false
+
         it('Deployment', async function(){
 
             const deployTx = await rpc.prepareSmartContractDeployTransaction(
@@ -73,6 +75,8 @@ describe('Gas costs performance', () => {
 
             contractAddress = deployResult.contractAddress!
 
+            deployed = true
+
             report('Deployment gas cost estimated:', deployTx.gas)
             report('Deployment gas used:', deployResult.gasUsed)
 
@@ -81,6 +85,8 @@ describe('Gas costs performance', () => {
         })
 
         it('Whitelisting', async function(){
+
+            if(!deployed) return this.skip()
 
             this.timeout(0);
 
@@ -108,6 +114,8 @@ describe('Gas costs performance', () => {
 
         for(let amount = 1; amount <= +process.env.MAX_USER_MINTED_TOKENS_PER_TX!; amount++)
         it('Token minting: '+amount+' tokens per tx', async function(){
+
+            if(!deployed) return this.skip()
 
             this.timeout(0);
 
@@ -152,7 +160,11 @@ describe('Gas costs performance', () => {
 
         })
 
+        it('Token minting at public sale')
+
         it('Airdropping', async function(){
+
+            if(!deployed) return this.skip()
 
             this.timeout(0)
 
