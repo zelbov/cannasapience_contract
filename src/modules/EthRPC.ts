@@ -199,22 +199,6 @@ export class EthRPC {
 
     }
 
-    public async deployContract(
-
-        contract: CompiledEthContractObject,
-        accountPrivateKey: string,
-        params: string[] = []
-
-    ) {
-       
-        const { signed } = await this.prepareSmartContractDeployTransaction(contract, accountPrivateKey, params)
-
-        const createReceipt = await this._connection.eth.sendSignedTransaction(signed.rawTransaction!);
-
-        return createReceipt;
-
-    }
-
     public loadAccount(privateKey: string) {
         return this._connection.eth.accounts.privateKeyToAccount(privateKey)
     }

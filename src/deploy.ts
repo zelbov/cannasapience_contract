@@ -43,7 +43,9 @@ const rpc = new EthRPC()
 
     console.log('Constructor parameters:', params)
 
-    const receipt = await rpc.deployContract(contract, account.privateKey, params)
+    const deployTx = await rpc.prepareSmartContractDeployTransaction(contract, account.privateKey, params)
+
+    const receipt = await rpc.client.eth.sendSignedTransaction(deployTx.signed.rawTransaction)
 
     console.log('Success! Contract deployment receipt:', receipt)
 

@@ -79,13 +79,9 @@ describe('Gas costs performance', () => {
 
             this.timeout(0)
 
-            const deployTx = await rpc.prepareSmartContractDeployTransaction(
-                contract, root.privateKey
-            )
+            const deployTx = await rpc.prepareSmartContractDeployTransaction(contract, root.privateKey)
 
-            report('Deployment gas cost estimated:', deployTx.gas)
-
-            const deployResult = await rpc.deployContract(contract, root.privateKey)
+            const deployResult = await rpc.client.eth.sendSignedTransaction(deployTx.signed.rawTransaction)
 
             contractAddress = deployResult.contractAddress!
 
@@ -93,7 +89,7 @@ describe('Gas costs performance', () => {
 
             report('Deployment gas used:', deployResult.gasUsed)
 
-            expect(deployTx.gas).lte(5_000_000)
+            expect(deployResult.gasUsed).lte(5_000_000)
 
             // record presale end timestamp
             presaleEndTS = await rpc.getContractPropertyValue(

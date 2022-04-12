@@ -33,7 +33,9 @@ describe('MainContract unit tests', () => {
 
         contract = contracts[mainContractName]
 
-        const deployResult = await rpc.deployContract(contract, root.privateKey)
+        const deployTx = await rpc.prepareSmartContractDeployTransaction(contract, root.privateKey)
+
+        const deployResult = await rpc.client.eth.sendSignedTransaction(deployTx.signed.rawTransaction)
 
         contractAddress = deployResult.contractAddress!
         
