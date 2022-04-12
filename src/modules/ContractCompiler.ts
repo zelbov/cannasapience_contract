@@ -23,14 +23,9 @@ export const saveContractArtifacts = (contractName: string, data: OutputResult) 
 
     writeFileSync(join(tmpdir, filename+'.abi.json'), JSON.stringify(contract.abi, null, 2))
     writeFileSync(join(tmpdir, filename+'.bin'), '0x'+contract.evm.bytecode.object)
+    writeFileSync(join(tmpdir, filename+'.ast.full.json'), JSON.stringify(data, null, 2))
 
     const metadata = JSON.parse(contract.metadata)
-
-    writeFileSync(
-        join(tmpdir, filename+'.metadata.json'), 
-        JSON.stringify(metadata, null, 2)
-    )
-    writeFileSync(join(tmpdir, filename+'.ast.full.json'), JSON.stringify(data, null, 2))
 
     const { sources, settings, language } = metadata;
 
