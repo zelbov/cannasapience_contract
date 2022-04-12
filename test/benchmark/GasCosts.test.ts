@@ -211,24 +211,6 @@ describe('Gas costs performance', () => {
             
         })
 
-        it('Withdrawal', async function(){
-
-            if(!deployed) return this.skip()
-            
-            this.timeout(0)
-
-            const { signed, gas } = await rpc.prepareContractCallTransaction(
-                contract, contractAddress, 'withdrawAll', [], root.privateKey
-            )
-
-            const rcpt = await rpc.sendContractCallTransaction(signed)
-
-            expect(rcpt.status).eq(true)
-
-            report('Tx WITHDRAW: gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
-
-        })
-
         describe('Token minting at public sale', () => {
 
             const listed : string[] = [], listedAmount = +process.env.MAX_USER_MINTED_TOKENS_PER_TX! + 2;
@@ -315,6 +297,24 @@ describe('Gas costs performance', () => {
                 }
 
             })
+
+        })
+
+        it('Withdrawal', async function(){
+
+            if(!deployed) return this.skip()
+            
+            this.timeout(0)
+
+            const { signed, gas } = await rpc.prepareContractCallTransaction(
+                contract, contractAddress, 'withdrawAll', [], root.privateKey
+            )
+
+            const rcpt = await rpc.sendContractCallTransaction(signed)
+
+            expect(rcpt.status).eq(true)
+
+            report('Tx WITHDRAW: gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
 
         })
 
