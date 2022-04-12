@@ -48,6 +48,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "morgan": "^1.10.0",
+    "rxjs": "^7.5.5",
     "solc": "^0.8.12",
     "swagger-ui-express": "^4.3.0",
     "web3": "^1.7.1"

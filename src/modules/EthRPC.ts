@@ -4,6 +4,7 @@ import { DEFAULT_ETH_TX_GAS } from '../constants/EthMainnet';
 import { EthAccount } from '../types/EthAccount';
 import { CompiledEthContractObject } from '../types/EthContract';
 import { TransactionConfig } from '../types/EthTransactions';
+import { QueueLock } from './SyncOps';
 
 type ClientOptions = {
 
@@ -27,14 +28,36 @@ export class EthRPC {
             RPC_PORT != '' ? `:${options.port || RPC_PORT}` : ''
         }`)
 
+        QueueLock.initLocksContainer('NonceIncrement');
+
     }
 
     public get client() { return this._connection }
 
+    private _nonces: {[address: string]: number} = {}
+
+    private async getNonce(address: string) {
+
+        const queue = QueueLock.getLock('NonceIncrement', '0');
+
+        await queue.lock()
+
+        if(!this._nonces[address]){
+            this._nonces[address] = await this.client.eth.getTransactionCount(address)
+        }
+
+        queue.release()
+
+        const nonce = this._nonces[address]++
+
+        return nonce;
+
+    }
+
     public async sendETH(senderPrivateKey: string, receiverAddress: string, ethValue: string) {
 
         const account = this.client.eth.accounts.privateKeyToAccount(senderPrivateKey),
-            nonce = await this.client.eth.getTransactionCount(account.address, 'latest'),
+            nonce = await this.getNonce(account.address),
             gas = DEFAULT_ETH_TX_GAS,
             value = this.client.utils.toWei(ethValue, 'ether'),
             to = receiverAddress,
@@ -45,7 +68,9 @@ export class EthRPC {
         if(!signedTx.rawTransaction)
             throw new Error('Undefined raw transaction produced from '+JSON.stringify(tx))
 
-        return await this.client.eth.sendSignedTransaction(signedTx.rawTransaction!)
+        const rcpt = await this.client.eth.sendSignedTransaction(signedTx.rawTransaction!)
+
+        return rcpt;
 
     }
 
@@ -101,7 +126,8 @@ export class EthRPC {
             call = c.methods[method](...args),
             encoded = call.encodeABI(),
             { address } = this.loadAccount(accountPrivateKey),
-            estimateConfig = { from: address, to: contractAddress, data: encoded, value }
+            nonce = await this.getNonce(address),
+            estimateConfig = { from: address, to: contractAddress, data: encoded, value, nonce }
 
         Object.assign(estimateConfig, { value })
 
@@ -111,7 +137,7 @@ export class EthRPC {
                 from: address,
                 to: contractAddress,
                 data: encoded, value,
-                gas
+                gas, nonce
             }
 
         Object.assign(tx, { value })
@@ -150,12 +176,13 @@ export class EthRPC {
         const c = new this._connection.eth.Contract(contract.abi),
             cTx = c.deploy({ data: contract.evm.bytecode.object, arguments: args }),
             { address } = this.loadAccount(accountPrivateKey),
+            nonce = await this.getNonce(address),
             gas = await cTx.estimateGas({ from: address }),
             signed = await this._connection.eth.accounts.signTransaction(
                 {
                    from: address,
                    data: cTx.encodeABI(),
-                   gas
+                   gas, nonce
                 },
                 accountPrivateKey
             );

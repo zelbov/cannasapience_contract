@@ -61,13 +61,13 @@ describe('Gas costs performance', () => {
 
             this.timeout(0)
 
-            for(let i = 0; i < listedAmount; i++) {
+            await Promise.all(new Array(listedAmount).fill(0).map(async () => {
 
                 const wallet = await rpc.createAccount()
                 listed.push(wallet.privateKey)
-                await rpc.sendETH(root.privateKey, wallet.address, '0.01'); //TODO: calculate from mint prices
-    
-            }
+                await rpc.sendETH(root.privateKey, wallet.address, '0.01');
+
+            }))
 
         })
 
@@ -83,13 +83,14 @@ describe('Gas costs performance', () => {
                 contract, root.privateKey
             )
 
+            report('Deployment gas cost estimated:', deployTx.gas)
+
             const deployResult = await rpc.deployContract(contract, root.privateKey)
 
             contractAddress = deployResult.contractAddress!
 
             deployed = true
 
-            report('Deployment gas cost estimated:', deployTx.gas)
             report('Deployment gas used:', deployResult.gasUsed)
 
             expect(deployTx.gas).lte(5_000_000)
@@ -233,13 +234,13 @@ describe('Gas costs performance', () => {
 
                 // refill other users balance, and so, seal new block for block.timestamp update
 
-                for(let i = 0; i < listedAmount; i++) {
+                await Promise.all(new Array(listedAmount).fill(0).map(async () => {
 
                     const wallet = await rpc.createAccount()
                     listed.push(wallet.privateKey)
-                    await rpc.sendETH(root.privateKey, wallet.address, '0.01'); //TODO: calculate from mint prices
+                    await rpc.sendETH(root.privateKey, wallet.address, '0.01');
         
-                }
+                }))
 
                 // check whether it is a public sale already
 
