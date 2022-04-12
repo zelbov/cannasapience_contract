@@ -46,12 +46,17 @@ export class EthRPC {
             this._nonces[address] = await this.client.eth.getTransactionCount(address)
         }
 
-        queue.release()
-
         const nonce = this._nonces[address]++
+
+        queue.release()
 
         return nonce;
 
+    }
+
+    private getGasPrice(){
+        if(process.env.NODE_ENV == 'test') return this.client.utils.toWei('2.5', 'Gwei')
+        return undefined
     }
 
     public async sendETH(senderPrivateKey: string, receiverAddress: string, ethValue: string) {
@@ -61,7 +66,7 @@ export class EthRPC {
             gas = DEFAULT_ETH_TX_GAS,
             value = this.client.utils.toWei(ethValue, 'ether'),
             to = receiverAddress,
-            tx = { to, value, gas, nonce }
+            tx = { to, value, gas, nonce, gasPrice: this.getGasPrice() }
 
         const signedTx = await this.client.eth.accounts.signTransaction(tx, senderPrivateKey);
 
@@ -137,7 +142,7 @@ export class EthRPC {
                 from: address,
                 to: contractAddress,
                 data: encoded, value,
-                gas, nonce
+                gas, nonce, gasPrice: this.getGasPrice()
             }
 
         Object.assign(tx, { value })
@@ -182,7 +187,7 @@ export class EthRPC {
                 {
                    from: address,
                    data: cTx.encodeABI(),
-                   gas, nonce
+                   gas, nonce, gasPrice: this.getGasPrice()
                 },
                 accountPrivateKey
             );
