@@ -23,8 +23,8 @@ export class EthRPC {
             options.proto || RPC_PROTO
         }://${
             options.host || RPC_HOST
-        }:${
-            options.port || RPC_PORT
+        }${
+            RPC_PORT != '' ? `:${options.port || RPC_PORT}` : ''
         }`)
 
     }
