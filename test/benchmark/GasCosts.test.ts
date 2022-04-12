@@ -106,7 +106,7 @@ describe('Gas costs performance', () => {
 
             let idx = 0;
 
-            for(let pkey of listed) {
+            await Promise.all(listed.map(async (pkey) => {
 
                 idx++;
 
@@ -122,7 +122,7 @@ describe('Gas costs performance', () => {
                 expect(rcpt.status).eq(true)
                 report('Tx #', idx, ': gas used:', rcpt.gasUsed, 'of', gas, 'estimated')
 
-            }
+            }))
 
         })
 
@@ -147,30 +147,38 @@ describe('Gas costs performance', () => {
 
             const initiatorPkey = listed[amount]
 
+            const mintWorks: (() => Promise<any>)[] = []
+
             for(let i = 0; i < maxMinted && idx < 3; i += tokensToMint) {
 
-                idx++;
+                const txIdx = idx++;
 
-                if(idx * tokensToMint > maxMinted) tokensToMint -= idx * tokensToMint - maxMinted
+                mintWorks.push(async() => {
 
-                const { signed, gas } = await rpc.prepareContractCallTransaction(
-                    contract,
-                    contractAddress,
-                    'mintTokens',
-                    [tokensToMint],
-                    initiatorPkey,
-                    (Math.ceil(+mintPriceValue * tokensPerTx)).toString()
-                );
-                    
-                const rcpt = await rpc.sendContractCallTransaction(signed)
+                    if(idx * tokensToMint > maxMinted) tokensToMint -= idx * tokensToMint - maxMinted
 
-                expect(rcpt.status).eq(true);
-                report(
-                    'Tx #',idx,': gas used:',rcpt.gasUsed,'of',gas,'estimated.', 
-                    'Minted',tokensToMint,'tokens'
-                );
+                    const { signed, gas } = await rpc.prepareContractCallTransaction(
+                        contract,
+                        contractAddress,
+                        'mintTokens',
+                        [tokensToMint],
+                        initiatorPkey,
+                        (Math.ceil(+mintPriceValue * tokensPerTx)).toString()
+                    );
+                        
+                    const rcpt = await rpc.sendContractCallTransaction(signed)
+
+                    expect(rcpt.status).eq(true);
+                    report(
+                        'Tx #',txIdx,': gas used:',rcpt.gasUsed,'of',gas,'estimated.', 
+                        'Minted',tokensToMint,'tokens'
+                    );
+
+                })
 
             }
+
+            await Promise.all(mintWorks.map(work => work()))
 
         })
 
@@ -184,7 +192,7 @@ describe('Gas costs performance', () => {
 
             let idx = 0;
 
-            for(let i = 0; i < tokensToAirdrop; i++) {
+            await Promise.all(new Array(tokensToAirdrop).fill(0).map(async() => {
 
                 idx++;
 
@@ -205,7 +213,7 @@ describe('Gas costs performance', () => {
 
                 report('Tx #', idx, ': gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
 
-            }
+            }))
             
         })
 
@@ -269,50 +277,62 @@ describe('Gas costs performance', () => {
 
                 const initiatorPkey = listed[amount]
 
+                const mintWorks: (() => Promise<any>)[] = []
+
                 for(let i = 0; i < maxMinted && idx < 3; i += tokensToMint) {
 
-                    idx++;
+                    const txIdx = idx++;
 
-                    if(idx * tokensToMint > maxMinted) tokensToMint -= idx * tokensToMint - maxMinted
+                    mintWorks.push(async() => {
 
-                    const { signed, gas } = await rpc.prepareContractCallTransaction(
-                        contract,
-                        contractAddress,
-                        'mintTokens',
-                        [tokensToMint],
-                        initiatorPkey,
-                        (Math.ceil(+mintPriceValue * tokensPerTx)).toString()
-                    );
-                        
-                    const rcpt = await rpc.sendContractCallTransaction(signed)
+                        if(idx * tokensToMint > maxMinted) tokensToMint -= idx * tokensToMint - maxMinted
 
-                    expect(rcpt.status).eq(true);
-                    report(
-                        'Tx #',idx,': gas used:',rcpt.gasUsed,'of',gas,'estimated.', 
-                        'Minted',tokensToMint,'tokens'
-                    );
+                        const { signed, gas } = await rpc.prepareContractCallTransaction(
+                            contract,
+                            contractAddress,
+                            'mintTokens',
+                            [tokensToMint],
+                            initiatorPkey,
+                            (Math.ceil(+mintPriceValue * tokensPerTx)).toString()
+                        );
+                            
+                        const rcpt = await rpc.sendContractCallTransaction(signed)
+
+                        expect(rcpt.status).eq(true);
+                        report(
+                            'Tx #',txIdx,': gas used:',rcpt.gasUsed,'of',gas,'estimated.', 
+                            'Minted',tokensToMint,'tokens'
+                        );
+
+                    })
 
                 }
+
+                await Promise.all(mintWorks.map(work => work()))
 
             })
 
         })
 
-        it('Withdrawal', async function(){
+        describe('Withdrawal', () => {
 
-            if(!deployed) return this.skip()
-            
-            this.timeout(0)
+            it('Withdraw', async function(){
 
-            const { signed, gas } = await rpc.prepareContractCallTransaction(
-                contract, contractAddress, 'withdrawAll', [], root.privateKey
-            )
-
-            const rcpt = await rpc.sendContractCallTransaction(signed)
-
-            expect(rcpt.status).eq(true)
-
-            report('Tx WITHDRAW: gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
+                if(!deployed) return this.skip()
+                
+                this.timeout(0)
+    
+                const { signed, gas } = await rpc.prepareContractCallTransaction(
+                    contract, contractAddress, 'withdrawAll', [], root.privateKey
+                )
+    
+                const rcpt = await rpc.sendContractCallTransaction(signed)
+    
+                expect(rcpt.status).eq(true)
+    
+                report('Tx WITHDRAW: gas used:', rcpt.gasUsed, 'of', gas, 'estimated');
+    
+            })
 
         })
 
