@@ -29,7 +29,11 @@ describe('Gas costs performance', () => {
     before('Compile main contract', async function(){
 
         // override presale duration to prevent long waits
-        process.env.PRESALE_DURATION_SECONDS = '60'
+        process.env.PRESALE_DURATION_SECONDS = '180'
+
+        // prevent huge spendingds during test on public test network (e.g. Rinkeby)
+        process.env.PRESALE_TOKEN_PRICE_ETH = '0.0002 ether'
+        process.env.SALE_TOKEN_PRICE_ETH = '0.00025 ether'
 
         this.timeout(0)
 
@@ -61,7 +65,7 @@ describe('Gas costs performance', () => {
 
                 const wallet = await rpc.createAccount()
                 listed.push(wallet.privateKey)
-                await rpc.sendETH(root.privateKey, wallet.address, '0.1');
+                await rpc.sendETH(root.privateKey, wallet.address, '0.01'); //TODO: calculate from mint prices
     
             }
 
@@ -72,6 +76,8 @@ describe('Gas costs performance', () => {
         let presaleEndTS : number = 0;
 
         it('Deployment', async function(){
+
+            this.timeout(0)
 
             const deployTx = await rpc.prepareSmartContractDeployTransaction(
                 contract, root.privateKey
@@ -234,6 +240,7 @@ describe('Gas costs performance', () => {
                 this.timeout(0)
 
                 // wait for presale period ends
+                // TODO: cover period > 0 blocks sealing case
 
                 const waitTime = (presaleEndTS - Math.floor(new Date().getTime() / 1000)) * 1000
 
@@ -247,7 +254,7 @@ describe('Gas costs performance', () => {
 
                     const wallet = await rpc.createAccount()
                     listed.push(wallet.privateKey)
-                    await rpc.sendETH(root.privateKey, wallet.address, '0.1');
+                    await rpc.sendETH(root.privateKey, wallet.address, '0.01'); //TODO: calculate from mint prices
         
                 }
 
