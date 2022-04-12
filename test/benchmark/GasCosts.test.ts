@@ -191,7 +191,8 @@ describe('Gas costs performance', () => {
 
                 idx++;
 
-                const { address } = await rpc.createAccount()
+                // airdrop to owner for further marketplace trading manual tests
+                const { address } = root
 
                 const { signed, gas } = await rpc.prepareContractCallTransaction(
                     contract,
