@@ -19,11 +19,6 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     constructor() ERC721Tradable("__TOKEN_NAME__", "__TOKEN_SYMBOL__", address(__PROXY_REGISTRY_ADDRESS__)) {
         
-        // Set initial _nextTokenId value to next ID after last one reserved for airdrop
-        for(uint256 i = 0; i < RESERVE_FOR_AIRDROPS; i++) {
-            _nextTokenId.increment();
-        }
-        
         // whitelist contract owner's address & instantiate an initial storage to avoid gas cost increase at next application
         applyForWhitelist();
     
@@ -119,12 +114,19 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     }
 
+    Counters.Counter private _airdropped;
+
     function airdrop(address recipient, uint256 _tokenId) public onlyOwner {
 
         require(isAppliedForAirdrop(_tokenId), "This token is not applied for airdrop");
 
         _safeMint(recipient, _tokenId);
+        _airdropped.increment();
 
+    }
+
+    function totalSupply() public view returns(uint256) {
+        return _nextTokenId.current() + _airdropped.current() - 1;
     }
 
     // User-scope bulk minting
@@ -133,7 +135,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
         require(isPresale() || isPublicSale(), "Only available during presale or public sale");
 
-        uint256 offset = _nextTokenId.current();
+        uint256 offset = _nextTokenId.current() + RESERVE_FOR_AIRDROPS;
         uint256 currentBalance = balanceOf(msg.sender);
 
         if(isPresale()) {

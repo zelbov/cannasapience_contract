@@ -57,14 +57,6 @@ abstract contract ERC721Tradable is ERC721, ContextMixin, NativeMetaTransaction,
         _safeMint(_to, currentTokenId);
     }
 
-    /**
-        @dev Returns the total tokens minted so far.
-        1 is always subtracted from the Counter since it tracks the next available tokenId.
-     */
-    function totalSupply() public view returns (uint256) {
-        return _nextTokenId.current() - 1;
-    }
-
     function baseTokenURI() virtual public pure returns (string memory);
 
     function tokenURI(uint256 _tokenId) override public pure returns (string memory) {
