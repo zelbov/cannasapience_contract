@@ -110,7 +110,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     function isAppliedForPresale(uint256 _tokenId) public pure returns(bool) {
 
-        return _tokenId > RESERVE_FOR_AIRDROPS && _tokenId <= RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS + 1;
+        return _tokenId > RESERVE_FOR_AIRDROPS && _tokenId <= RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS;
 
     }
 
@@ -177,12 +177,13 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
             expected <= msg.value, 
             string(abi.encodePacked(
                 "Insufficient funds provided. Expected ",
-                Strings.toString(expected / 10^18),
-                " ether, got ", Strings.toString(msg.value / 10^18)
-            ))    
+                Strings.toString(expected),
+                " wei, got ",
+                Strings.toString(msg.value)
+            ))
         );
 
-        for(uint256 _tokenId = offset + 1; _tokenId < offset + numOfTokens + 1; _tokenId++){
+        for(uint256 _tokenId = offset; _tokenId < offset + numOfTokens; _tokenId++){
             _safeMint(msg.sender, _tokenId);
             _nextTokenId.increment();
         }
