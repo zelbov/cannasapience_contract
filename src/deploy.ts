@@ -37,9 +37,13 @@ const rpc = new EthRPC()
     let params = process.argv, 
         cmdIdx = 0
 
-    params.map((param, idx) => { if(param.match(/index.(j|t)s$/)) cmdIdx = idx + 1 })
+    if(params.find($ => $ == '--')) {
 
-    params = params.splice(cmdIdx).filter($ => $ != '--')
+        params.map((param, idx) => { if(param.match(/index.(j|t)s$/)) cmdIdx = idx + 1 })
+
+        params = params.splice(cmdIdx).filter($ => $ != '--')
+
+    } else params = []
 
     console.log('Constructor parameters:', params)
 
