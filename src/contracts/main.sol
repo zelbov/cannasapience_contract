@@ -115,7 +115,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     function isAppliedForPresale(uint256 _tokenId) public pure returns(bool) {
 
-        return _tokenId > RESERVE_FOR_AIRDROPS && _tokenId <= RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS;
+        return _tokenId > RESERVE_FOR_AIRDROPS && _tokenId <= RESERVE_FOR_WHITELISTED + RESERVE_FOR_AIRDROPS + 1;
 
     }
 
