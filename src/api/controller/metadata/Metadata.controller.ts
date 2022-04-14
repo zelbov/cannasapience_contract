@@ -1,11 +1,7 @@
-import { Controller, forwardRef, Get, HttpStatus, Inject, Post, Req, Res } from "@nestjs/common";
+import { Controller, forwardRef, Get, HttpStatus, Inject, Req, Res } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Request, Response } from 'express'
 import { AssetStorageProvider } from "../../provider/AssetStorage.provider";
-
-const API_SECRET = process.env.API_SECRET!
-
-if(!API_SECRET) throw new Error('API_SECRET env var is not defined')
 
 @Controller('nft_assets')
 @ApiTags('NFT tokens distribution')
