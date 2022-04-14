@@ -29,7 +29,7 @@ describe('Gas costs performance', () => {
     before('Compile main contract', async function(){
 
         // override presale duration to prevent long waits
-        process.env.PRESALE_DURATION_SECONDS = '180'
+        process.env.PRESALE_DURATION_SECONDS = '120'
 
         // prevent huge spendingds during test on public test network (e.g. Rinkeby)
         process.env.PRESALE_TOKEN_PRICE_ETH = '0.0002 ether'
@@ -55,7 +55,7 @@ describe('Gas costs performance', () => {
 
     describe('Gas costs', () => {
 
-        const listed : string[] = [], listedAmount = +process.env.MAX_USER_MINTED_TOKENS_PER_TX! + 2;
+        const listed : string[] = [], listedAmount = +process.env.MAX_PRESALE_USER_MINTED_TOKENS_PER_TX! + 2;
 
         before(async function(){
 
@@ -219,7 +219,7 @@ describe('Gas costs performance', () => {
 
         describe('Token minting at public sale', () => {
 
-            const listed : string[] = [], listedAmount = +process.env.MAX_USER_MINTED_TOKENS_PER_TX! + 2;
+            const listed : string[] = [], listedAmount = +process.env.MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX! + 2;
 
             before(async function(){
 
