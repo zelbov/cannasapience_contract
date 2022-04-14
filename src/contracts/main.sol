@@ -43,7 +43,9 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     uint256 public constant RESERVE_FOR_WHITELISTED = __RESERVE_FOR_PRESALE__;
 
-    uint256 public constant MAX_USER_MINTED_TOKENS_PER_TX = __MAX_USER_MINTED_TOKENS_PER_TX__;
+    uint256 public constant MAX_PRESALE_USER_MINTED_TOKENS_PER_TX = __MAX_PRESALE_USER_MINTED_TOKENS_PER_TX__;
+
+    uint256 public constant MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX = __MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX__;
 
     uint256 public constant MAX_PRESALE_TOKENS_MINT = __MAX_PRESALE_TOKENS_MINT__;
 
@@ -129,14 +131,16 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     function mintTokens(uint256 numOfTokens) public payable {
 
-        require(numOfTokens <= MAX_USER_MINTED_TOKENS_PER_TX, "Mint limit per transation is __MAX_USER_MINTED_TOKENS_PER_TX__");
-
         require(isPresale() || isPublicSale(), "Only available during presale or public sale");
 
         uint256 offset = _nextTokenId.current();
         uint256 currentBalance = balanceOf(msg.sender);
 
         if(isPresale()) {
+            require(
+                numOfTokens <= MAX_PRESALE_USER_MINTED_TOKENS_PER_TX,
+                "Mint limit per transation during presale is __MAX_USER_MINTED_TOKENS_PER_TX__"
+            );
             require(isWhitelisted(msg.sender), "Minting at presale only available for whitelisted users");
             require(
                 currentBalance <= MAX_PRESALE_TOKENS_MINT - numOfTokens,
@@ -150,6 +154,10 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
                 "No more reserved tokens left during presale"
             );
         } else {
+            require(
+                numOfTokens <= MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX,
+                "Mint limit per transation during presale is __MAX_USER_MINTED_TOKENS_PER_TX__"
+            );
             require(
                 balanceOf(msg.sender) <= MAX_PUBLIC_SALE_TOKENS_MINT - numOfTokens,
                 string(abi.encodePacked(

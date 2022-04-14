@@ -126,7 +126,7 @@ describe('Gas costs performance', () => {
 
         })
 
-        for(let amount = 1; amount <= +process.env.MAX_USER_MINTED_TOKENS_PER_TX!; amount++)
+        for(let amount = 1; amount <= +process.env.MAX_PRESALE_USER_MINTED_TOKENS_PER_TX!; amount++)
         it('Token minting: '+amount+' tokens per tx', async function(){
 
             if(!deployed) return this.skip()
@@ -256,7 +256,7 @@ describe('Gas costs performance', () => {
 
             })
 
-            for(let amount = 1; amount <= +process.env.MAX_USER_MINTED_TOKENS_PER_TX!; amount++)
+            for(let amount = 1; amount <= +process.env.MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX!; amount++)
             it('Token minting at public sale: '+amount+' tokens per tx', async function(){
 
                 if(!deployed) return this.skip()

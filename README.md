@@ -49,7 +49,8 @@ All following variables defined in project environment configuration file are **
 | RESERVE_FOR_AIRDROPS | Number of tokens initially reserved for airdrops. Identifies `N(RFA)`, so that tokens from `ID = 1` to `ID = N(RFA)` will be airdroppable by contract owner |
 | RESERVE_FOR_PRESALE | Maximum amount of tokens available to mint during presale. Identifies `N(RFP)`, so that tokens from `ID = N(RFA)+1` to `ID = N(RFP)+N(RFA)+1` will be eligible for minting during pre-sale. E.g. `N(RFA) = 15, N(RFP) = 1000` means that tokens with IDs `#1 - #15` will be reserved for Airdrops, and tokens `#16 - #1016` will be reserved for Pre-sale |
 | MAX_TOKENS | Maximum amount of tokens available within a contract ever (identifies maximum token ID possible) |
-| MAX_USER_MINTED_TOKENS_PER_TX | Maximum amount of tokens that users can mint within a single transaction |
+| MAX_PRESALE_USER_MINTED_TOKENS_PER_TX | Maximum amount of tokens that users can mint within a single transaction during presale |
+| MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX | Maximum amount of tokens that users can mint within a single transaction during public sale |
 | MAX_PRESALE_TOKENS_MINT | Maximum amount of tokens that a user can own during pre-sale that allows minting more directly from smart contract |
 | MAX_PUBLIC_SALE_TOKENS_MINT | Maximum amount of tokens that a user can own during public sale that allows minting more directly from smart contract |
 | PROXY_REGISTRY_ADDRESS | A ProxyRegistry contract address required by OpenSea for tokens buy & sell operations with gast cost optimization. See `.env.sample` for addresses used by mainnet and Rikneby testnet contracts. For local dev/test environments, any could be used |
