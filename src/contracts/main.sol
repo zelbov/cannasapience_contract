@@ -139,7 +139,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
         if(isPresale()) {
             require(
                 numOfTokens <= MAX_PRESALE_USER_MINTED_TOKENS_PER_TX,
-                "Mint limit per transation during presale is __MAX_USER_MINTED_TOKENS_PER_TX__"
+                "Mint limit per transation during presale is __MAX_PRESALE_USER_MINTED_TOKENS_PER_TX__"
             );
             require(isWhitelisted(msg.sender), "Minting at presale only available for whitelisted users");
             require(
@@ -156,7 +156,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
         } else {
             require(
                 numOfTokens <= MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX,
-                "Mint limit per transation during presale is __MAX_USER_MINTED_TOKENS_PER_TX__"
+                "Mint limit per transation during presale is __MAX_PUBSALE_USER_MINTED_TOKENS_PER_TX__"
             );
             require(
                 balanceOf(msg.sender) <= MAX_PUBLIC_SALE_TOKENS_MINT - numOfTokens,
@@ -176,7 +176,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
             string(abi.encodePacked(
                 "Insufficient funds provided. Expected ",
                 Strings.toString(expected / 10^18),
-                " wei, got ", Strings.toString(msg.value / 10^18)
+                " ether, got ", Strings.toString(msg.value / 10^18)
             ))    
         );
 
