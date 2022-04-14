@@ -109,7 +109,7 @@ contract __CONTRACT_NAME__ is ERC721Tradable {
 
     function isAppliedForAirdrop(uint256 _tokenId) public pure returns(bool) {
 
-        return _tokenId <= RESERVE_FOR_AIRDROPS;
+        return _tokenId <= RESERVE_FOR_AIRDROPS && _tokenId > 0;
 
     }
 
