@@ -12,7 +12,7 @@ import "./ERC721Tradable.sol";
 // (see .env.sample in project sources)
 
 /**
- * @title Cannasapience NFT contract base
+ * @title Cannasapiens NFT contract base
  */
 contract __CONTRACT_NAME__ is ERC721Tradable {
     using Counters for Counters.Counter;

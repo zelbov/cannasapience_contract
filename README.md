@@ -1,4 +1,4 @@
-# Cannasapience NFT
+# Cannasapiens NFT
 
 Installation & usage instructions are provided within this README.
 
